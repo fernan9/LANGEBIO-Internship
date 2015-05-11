@@ -1,0 +1,136 @@
+#! /usr/bin/env python
+# coding=utf-8
+"""RBH for Ortholog Search 1.0 20/03/2015
+
+CONTACT
+Fernan Rodrigo Pérez Gálvez  +52 (442) 272 4272  fernan954<at>gmail<dot>com
+
+GENERAL DESCRIPTION
+This code implements Reciprocal Best Hit algorithm for ortholog search by comparing one species, denominated 'node', against other 'tip' species. Assumes a set of BLAST 'all-to-all' files with the exact names expresed in a list with the 'node' species at the beginning.
+"""
+
+import sys,csv
+from Bio.Blast import NCBIXML
+
+"""--- FUNCTIONS ---
+"""
+def file_verif(lista):
+    """ returns a list names of existent verified *.xml files """
+    import glob
+    import sys
+    nodo = lista.pop(0)
+    nombres = []
+    referencia = []
+    # generate_names(list)
+    for genome_code in lista:
+        nombres.append(nodo + "_" + genome_code + ".xml")
+        nombres.append(genome_code + "_" + nodo + ".xml")
+    # get the current files in directory
+    filenames = glob.glob('*.xml')
+    for filename in filenames:
+        referencia.append(filename)
+    # check if the files exist
+    if set(nombres).issubset(referencia):
+        raw_input('\nAll files needed have been verified. Press enter to continue...')
+    else:
+        sys.exit('\nError: Some files are missing. Impossible to continue.')
+    return nombres
+
+def fill_dict(file_names, eval_threshold):
+    """ fills a dictionary with queries:list-of-filtered-blast-hits """
+    blast_file_name = file_names.pop(0)
+    # open file and parse BLAST xml
+    d={}
+    result_handle = open(blast_file_name)
+    blast_records = NCBIXML.parse(result_handle)
+    # move along the Blast parser
+    for blast_record in blast_records:
+        for alignment in blast_record.alignments:
+            for hsp in alignment.hsps:
+                # calculate the relation alignment/query
+                proportion = hsp.align_length / blast_record.query_length
+                # take into account ratio and E_VALUE
+                if hsp.expect < eval_threshold and proportion > 0.5:
+                    q_name = (blast_record.query).split(' ')[0].strip()
+                    s_name = alignment.accession
+                    # if the key exists, add ID to list
+                    if q_name in d:
+                        d[q_name].append(s_name)
+                    # if the key doesn't exists, create a list
+                    else:
+                        d[q_name] = ([s_name])
+    # return a dictionary of results
+    return {'list':file_names, 'dictionary':d, 'label':blast_file_name}
+    # result['list'] will retrieve the object
+
+
+def search_orthologs(dict1, dict2, dictlabel1, dictlabel2):
+    """ returns a list of ortholog candidates, given 2 dictionaries """
+    boucher = 'RBHresults_'+dictlabel1.split('_')[0]+'_'+dictlabel2.split('_')[0]+'.txt'
+    output = csv.writer(open(boucher, "wb"))
+    for seqname in dict1:
+        seqmatch_list1 = dict1.get(seqname)
+        for seqmatch_item in seqmatch_list1:
+            seqmatch_list2 = dict2.get(seqmatch_item)
+            if seqmatch_list2 != None and seqname in seqmatch_list2:
+                #write in csv seqname seqmatch_item
+                output.writerow([seqname, seqmatch_item])
+    print ('\n\t>>> "' + boucher + '" file has been created...\n\t')
+
+"""--- PROGRAM BODY ---
+"""
+# internal variables
+op = 1
+th = 1e-5
+r = 0.7
+
+# say hello
+print("*****\n****\n***\n**\n*\t<<< RBH for Ortholog Search 1.0 20/03/2015 >>>")
+
+while 1:
+    # ask to verify the parameters
+    question_1 = "\nThe parameters for this search are:\n\tE_VALUE Threshold = " + str(th) + "\n\tAlignment size ratio = "+ str(r) +"\nContinue? (y/n): "
+    continuar = raw_input(question_1)
+
+    # change parameters if desired
+    if continuar in ('no', 'n', 'NO'):
+        new_th = raw_input("Assign a new E_VALUE threshold: ")
+        new_r = raw_input("Assign a new alignment size ratio: ")
+        if new_th.replace('.','').isdigit() and new_r.replace('.','').isdigit():
+            th = float(new_th)
+            r = float(new_r)
+    else: break
+
+print('Parameters fetched\n')
+
+# get the direction of the genome code list
+gencode_ruta = raw_input("Enter the name of the file containing the genome code list: ")
+
+# fetch the list from the file
+with open(gencode_ruta, 'r') as f:
+    genome_ls = [line.strip() for line in f]
+
+# validate name list and get the file names
+file_names = file_verif(genome_ls)
+
+# fill dictionaries and compute search by pairs
+lista_nueva = file_names
+veces = len(file_names)/2
+for i in range(0, veces):
+    # data in sense
+    result_sense = fill_dict(lista_nueva, th)
+    lista_nueva = result_sense['list']
+    # data in antisense
+    result_antisense = fill_dict(lista_nueva, th)
+    lista_nueva = result_antisense['list']
+    # ortholog search
+    search_orthologs(result_sense['dictionary'], result_antisense['dictionary'], result_sense['label'], result_antisense['label'])
+    
+print('*\n**\n***\n****\n***** Analysis complete')
+
+"""
+RBH for Ortholog Search (c) by Fernan Rodrigo Pérez Gálvez
+
+This work is licensed under the Creative Commons Attribution 4.0 International License. To view a copy of this license, visit http://creativecommons.org/licenses/by/4.0/.
+
+"""
