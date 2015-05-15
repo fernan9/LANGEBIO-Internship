@@ -13,18 +13,19 @@ from tabulate import tabulate
 
 def trim_all(datos):
     """ erases organisms with no genome file or db in working folder """
-    nuevo_datos = []
-    for dato in datos:
-        if dato[2] == False or dato[3] == False:
-            datos.remove(dato)
-        else:
-            nuevo_datos.append(dato)
-    return nuevo_datos      
+    nuevo_datos = list(datos)
+    salida = list()
+    for nuevo_dato in nuevo_datos:
+        print nuevo_dato
+        if (nuevo_dato[2] == True or nuevo_dato[3]==True):
+            salida.append(nuevo_dato)
+    return salida
 
-def trim_and_db(datos):
+def trim_and_db(entrada):
     """ erases organisms with no genome file, creates missing databases """
     import subprocess
-    nuevo_datos = []
+    datos = list(entrada)
+    nuevo_datos = list()
     for dato in datos:
         if dato[2] == False:
             # remove organisms with no genome data
@@ -54,15 +55,14 @@ for organism in organisms:
     codigo = nombre[0][0] + nombre[1][0:3]
     organism.append(codigo)
 
-filenames = glob.glob('*.faa')
+filenames = glob.glob('*.faa')+(glob.glob('*.fna'))+(glob.glob('*.fasta'))
 paths = glob.glob('*/')
 for organism in organisms:
     # internal search genome files by org name, record results
-    if organism[0].replace(' ','_')+'.faa' in filenames:
+    if organism[0].replace(' ','_')+'.faa' in filenames or organism[0].replace(' ','_')+'.fasta' in filenames :
         organism.append(True)
     else: organism.append(False)
     # internal search for db with code, record results
-    print paths
     if 'db_'+organism[1]+'/' in paths:
         organism.append(True)
     else: organism.append(False)
@@ -98,52 +98,26 @@ else:
         else: 'Non-valid selection, please retry\n'
     # apply trimming
     if answer1 == 'trim':
+        print organisms
         salida = trim_all(organisms)
     else:
         salida = trim_and_db(organisms)
 # print final database
 print '\nFinal Database\n--------------\n'
-print tabulate(organisms, headers=["Organism","Code", "Genome File", "Database folder"])
+print tabulate(salida, headers=["Organism","Code", "Genome File", "Database folder"])
 nombre = raw_input('\nPlease give a name for the CSV file: ')
 # create csv
 with open(nombre+".csv", "wb") as f:
     writer = csv.writer(f)
     writer.writerows(salida)
-with open(nombre+"_code.txt", "wb") as g:
-    writer = csv.writer(g)
-    writer.writerows(salida[1])
+with open(nombre+"_codes.txt", "wb") as thefile:
+    for item in salida:
+        thefile.write("%s\n" % item[1])
 print 'CSV file created\nEnd of execution'
 
 # ask for continue to BLAST or quit
 
-""" BLAST """
-# charge csv file
-nombre_csv = raw_input('Ingresa el nombre del archivo CSV: ')
-
-# present options: blast parameters, comparison parameters, run
-while 1:
-    print '
-
-# blast parameters
-
-# comparison parameters
-
-# run
 
 
 """
-makeblastdb -in pdbaa.fasta -title pdbaa -dbtype prot -out pdbaa -parse_seq
-
-# BLAST package
-from Bio.Blast.Applications import NcbiblastpCommandline
-help(NcbiblastxCommandline)
-
-# in line BLAST call definition
-blastp_cline = NcbiblastpCommandline(query="staphylococcus.faa", db="dbM/dbm", evalue=0.001,outfmt=5, out="staph_meth.xml")
-# real blast
-stdout, stderr = blastp_cline()
-
-# ...same as later but inverse
-blastp_cline = NcbiblastpCommandline(query="methanobrevibacter.faa", db="dbS/dbs", evalue=0.001,outfmt=5, out="meth_staph.xml")
-stdout, stderr = blastp_cline()
 """
