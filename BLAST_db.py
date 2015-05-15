@@ -1,8 +1,14 @@
 #! /usr/bin/env python
 
-""" DESCRIPTION
-    this script loads databases for a series of anotated genomes
-    also, makes blast all-to-all depending of a web topology
+""" 
+RBH for Ortholog Search 1.0 20/03/2015
+
+CONTACT
+Fernan Rodrigo Pérez Gálvez  +52 (442) 272 4272  fernan954<at>gmail<dot>com
+
+GENERAL DESCRIPTION
+this script loads databases for a series of anotated genomes
+also, makes blast all-to-all depending of a web topology
 """
 
 import glob, sys, csv
