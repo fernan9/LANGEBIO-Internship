@@ -1,6 +1,7 @@
 #! /usr/bin/env python
 # coding=utf-8
-"""RBH for Ortholog Search 1.0 20/03/2015
+"""
+RBH for Ortholog Search 1.0 20/03/2015
 
 CONTACT
 Fernan Rodrigo Pérez Gálvez  +52 (442) 272 4272  fernan954<at>gmail<dot>com
