@@ -5,12 +5,11 @@ coding=utf-8
 -----------------------------------------
 BLAST XML filtering script May 20th, 2015
 -----------------------------------------
-CONTACT Fernan Rodrigo Pérez Gálvez: fernan954<at>gmail<dot>com
--------
-GENERAL DESCRIPTION Gets inside each XML file in working directory
-                    and filters some information to retrieve an 
-                    easy-to-load-in-R text file.
--------------------
+-CONTACT-
+Fernan Rodrigo Pérez Gálvez: fernan954<at>gmail<dot>com
+-DESCRIPTION-
+Gets inside each BLAST.XML file in working directory and filters
+some information to retrieve an easy-to-load-in-R text file.
 """
 import sys,csv
 from Bio.Blast import NCBIXML
@@ -30,7 +29,7 @@ def carga_xml():
 """
 # internal variables
 archivos = list()
-
+data_frame = list()
 # salutation
 print('---------------\nBLAST FILTERING\n---------------')
 print('Looking for XML files in working folder...')
@@ -50,7 +49,7 @@ for archivo in archivosXML:
                 e_value = hsp.expect
                 query_ID = blast_record.query
                 sequence_ID = alignment.accession
-
+    
 
 # look for all *.xml in folder
 # ask for corroboration
