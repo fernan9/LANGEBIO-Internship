@@ -5,13 +5,12 @@ coding=utf-8
 -----------------------------------------
 BLAST XML filtering script May 20th, 2015
 -----------------------------------------
-CONTACT
+CONTACT Fernan Rodrigo Pérez Gálvez: fernan954<at>gmail<dot>com
 -------
-Fernan Rodrigo Pérez Gálvez -> fernan954<at>gmail<dot>com
-GENERAL DESCRIPTION
+GENERAL DESCRIPTION Gets inside each XML file in working directory
+                    and filters some information to retrieve an 
+                    easy-to-load-in-R text file.
 -------------------
-Gets inside each XML file in working directory and filters some information
-to retrieve an easy-to-load-in-R text file.
 """
 import sys,csv
 from Bio.Blast import NCBIXML
