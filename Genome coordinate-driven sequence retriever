@@ -1,0 +1,91 @@
+#! /usr/bin/env python
+"""
+SCRIPT
+Genome coordinate-driven sequence retriever (June 2nd, 2015)
+
+CONTACT
+Fernan Rodrigo Perez Galvez  +52 (442) 272 4272  fernan954<at>gmail<dot>com
+
+GENERAL DESCRIPTION
+Retrieves sequences from genomic coordinates in format contig:begin:size:sense
+also it assigns a name; creates a FASTA archive with the sense and
+antisense sequence.
+"""
+import glob, sys, csv
+from tabulate import tabulate
+from Bio import SeqIO
+from Bio.SeqRecord import SeqRecord
+from Bio.Seq import Seq
+
+# load a file with the organism names to an object
+coordinates_ruta = raw_input("-------------------------------------------\nGenome coordinate-driven sequence retriever\n-------------------------------------------\nPress ENTER to begin...")
+coordinates_ruta = 'reference_coordinates.txt'
+list_coordinates = list()
+sequences = list()
+
+# retrieve data from TXT file
+# contig:begin:size:sense
+with open(coordinates_ruta, 'r') as f:
+    list_coordinates = [line.strip() for line in f]
+
+# order list and assign name
+list_coordinates.sort()
+coordinates = list()
+i = 1
+for list_coordinate in list_coordinates:
+    coordinates.append(list_coordinate+':Tatroviride_milRNA_%i' % (i))
+    i=i+1
+
+# manage the genome file
+handle = open("Trichoderma_atroviride_v2.fasta", "rU")
+for record in SeqIO.parse(handle, "fasta"):
+    for coordinate in coordinates:
+        #coordinate = lectura[0]
+        if (record.id == coordinate.split(':')[0]):
+            region = coordinate.split(':')[0]
+            inicio = int(coordinate.split(':')[1])
+            largo = int(coordinate.split(':')[2])
+            sentido = coordinate.split(':')[3]
+            nombre = coordinate.split(':')[4]
+            secuencia = record.seq[inicio:(inicio+largo)]
+            if (sentido == '-'):
+                secuencia = secuencia[::-1]
+            salida = [region, inicio, secuencia, nombre]
+            sequences.append(salida)
+            salida = [region, inicio, secuencia.reverse_complement(), nombre+'_revCompl']
+            sequences.append(salida)
+handle.close()
+
+# OPTIONAL print results
+#print tabulate(sequences, headers=["Region","Beginning", "Sequence", "Name"])
+
+# create csv
+with open("coordinates_seq.csv", "wb") as f:
+    writer = csv.writer(f)
+    writer.writerows(sequences)
+print 'CSV file created'
+
+# create seqRecords
+coor_seq = []
+for sequence in sequences:
+    record=SeqRecord(sequence[2],sequence[3],'','')
+    coor_seq.append(record)
+
+# create FASTA file
+output_handle = open('coordinates_seq.fasta','w')
+SeqIO.write(coor_seq, output_handle, "fasta")
+output_handle.close()
+print 'FASTA file created'
+
+"""
+SCRIPT
+Genome coordinate-driven sequence retriever (June 2nd, 2015)
+
+CONTACT
+Fernan Rodrigo Perez Galvez  +52 (442) 272 4272  fernan954<at>gmail<dot>com
+
+GENERAL DESCRIPTION
+Retrieves sequences from genomic coordinates in format contig:begin:size:sense
+also it assigns a name; creates a FASTA archive with the sense and
+antisense sequence.
+"""
