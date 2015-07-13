@@ -1,0 +1,55 @@
+#! /usr/bin/env python
+#coding=utf-8
+import csv
+"""
+SCRIPT
+milRNA coordinates extractor - July 13th, 2015
+(A sequence in a sequence in sequence)
+
+CONTACT
+Fernan Rodrigo Perez Galvez  +52 (442) 272 4272  fernan954<at>gmail<dot>com
+
+GENERAL DESCRIPTION
+Extracts the indices of the mature sequence inside a precursor sequence. Needs a table of indices(num)-precursor(str)-mature(str) in CSV format, no headers.
+"""
+
+"""--- FUNCTIONS ---"""
+# automatic CSV file uploading
+def carga_csv(file_name):
+    """ creates a list of lists with a csv file """
+    tabla = list()
+    archivo = open(file_name+'.csv',"rU")
+    csvreader = csv.reader(archivo, dialect=csv.excel_tab, delimiter = ',')
+    for row in csvreader:
+        tabla.append(row)
+    return tabla
+
+"""--- PROGRAM BODY ---"""
+iniB = []
+endB = []
+
+# open the CSV file
+file_name = raw_input("Name the file (CSV) to read: ")
+secuencias = carga_csv(file_name)
+
+for secuencia in secuencias:
+    # get the internal coordinates
+    inicio = int(secuencia[0])
+    premature = secuencia[1]
+    mature = secuencia[2]
+    temp_len = len(mature)
+    prematindex = premature.find(mature)
+    # correct with precursor sequence index
+    temp_iniB = inicio + prematindex
+    iniB.append(temp_iniB)
+    temp_endB = temp_iniB + temp_len
+    endB.append(temp_endB)
+
+# merge column-wise
+salida = zip(iniB,endB)
+
+# print csv
+nombre = raw_input("Name your file(CSV): ")
+with open(nombre+".csv", "wb") as f:
+    writer = csv.writer(f)
+    writer.writerows(salida)
