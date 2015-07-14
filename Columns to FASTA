@@ -1,0 +1,63 @@
+#! /usr/bin/env python
+#coding=utf-8
+
+"""
+SCRIPT
+Columns to FASTA (July 14th, 2015) *Vive la France!*
+
+CONTACT
+Fernan Rodrigo Perez Galvez  +52 (442) 272 4272  fernan954<at>gmail<dot>com
+
+GENERAL DESCRIPTION
+A file of sequences (name, sequence) is driven to FASTA format.
+"""
+
+import glob, sys, csv
+from Bio import SeqIO
+from Bio.SeqRecord import SeqRecord
+from Bio.Seq import Seq
+from Bio.Alphabet import IUPAC
+
+"""--- FUNCTIONS ---"""
+# automatic CSV file uploading
+def carga_csv(file_name):
+    """ creates a list of lists with a csv file """
+    tabla = list()
+    archivo = open(file_name+'.csv',"rU")
+    csvreader = csv.reader(archivo, dialect=csv.excel_tab, delimiter = ',')
+    for row in csvreader:
+        tabla.append(row)
+    archivo.close()
+    return tabla
+
+"""--- PROGRAM BODY ---"""
+# ask for input file name and read it
+file_name = raw_input("Enter the name of the input file (CSV): ")
+sequences = carga_csv(file_name)
+
+# create seqRecords object with table
+fasta_record = []
+for sequence in sequences:
+    record=SeqRecord(Seq(sequence[1], IUPAC.unambiguous_dna),sequence[0],"","")
+    fasta_record.append(record)
+
+# ask for output file name
+out_name = raw_input("Enter the output file name: ")
+
+# create the FASTA file
+
+output_handle = open(out_name+'.fasta','w')
+SeqIO.write(fasta_record, output_handle, "fasta")
+output_handle.close()
+print 'FASTA file created'
+
+"""
+SCRIPT
+Columns to FASTA (July 14th, 2015) *Vive la France!*
+
+CONTACT
+Fernan Rodrigo Perez Galvez  +52 (442) 272 4272  fernan954<at>gmail<dot>com
+
+GENERAL DESCRIPTION
+A file of sequences (name, sequence) is driven to FASTA format.
+"""
