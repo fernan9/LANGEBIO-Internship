@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 #coding=utf-8
-import csv
+
 """
 SCRIPT
 milRNA coordinates extractor -or- A sequence in a sequence in sequence (July 13th, 2015)
@@ -9,8 +9,11 @@ CONTACT
 Fernan Rodrigo Perez Galvez  +52 (442) 272 4272  fernan954<at>gmail<dot>com
 
 GENERAL DESCRIPTION
-Extracts the indices of the mature sequence inside a precursor sequence. Needs a table of indices(num)-precursor(str)-mature(str) in CSV format, no headers.
+Extracts the indices of the mature sequence inside a precursor sequence.
+Needs a table of indices(num)-precursor(str)-mature(str) in CSV format, no headers.
 """
+
+import csv
 
 """--- FUNCTIONS ---"""
 # automatic CSV file uploading
@@ -52,3 +55,15 @@ nombre = raw_input("Name your file(CSV): ")
 with open(nombre+".csv", "wb") as f:
     writer = csv.writer(f)
     writer.writerows(salida)
+
+"""
+SCRIPT
+milRNA coordinates extractor -or- A sequence in a sequence in sequence (July 13th, 2015)
+
+CONTACT
+Fernan Rodrigo Perez Galvez  +52 (442) 272 4272  fernan954<at>gmail<dot>com
+
+GENERAL DESCRIPTION
+Extracts the indices of the mature sequence inside a precursor sequence.
+Needs a table of indices(num)-precursor(str)-mature(str) in CSV format, no headers.
+"""
