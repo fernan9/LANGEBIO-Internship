@@ -106,6 +106,8 @@ for pair in comparison_list:
 print tabulate(comandos, headers=["Genome file","Database", "Product file"]) + '\n'
 raw_input('Press ENTER to continue')
 # run commands, inform data created
+# qseqid sseqid pident length mismatch gapopen qstart qend sstart send
+evalue bitscore
 for comando in comandos:
     blastn_cline = NcbiblastnCommandline(query=comando[0], db=comando[1], evalue=blast_eval ,outfmt=5, out=comando[2])
     print 'File ' + comando[2] + ' is currently in progess...'
